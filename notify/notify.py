@@ -47,7 +47,7 @@ with open('secrets.json') as f:
 DISCORD_WEBHOOK = SECRETS['discord_webhook']
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--type', '-t', help='Type', default='log',
+parser.add_argument('--type', '-t', help='Type', default=['log'],
                     choices=['log', 'debug', 'info',
                              'error', 'fatal', 'warning'],
                     nargs=1
