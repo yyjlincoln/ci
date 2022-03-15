@@ -5,7 +5,7 @@ import time
 import argparse
 
 
-def _send_discord_msg(messageType, *args, **kw):
+def _send_discord_msg(HOOK, messageType, *args, **kw):
     discord_colors = {
         'log': 0x000000,
         'debug': 0x000000,
@@ -14,7 +14,6 @@ def _send_discord_msg(messageType, *args, **kw):
         'fatal': 0xFF0000,
         'warning': 0xFFFF00
     }
-    HOOK = DISCORD_WEBHOOK
     if not HOOK:
         return
 
@@ -36,15 +35,15 @@ def _send_discord_msg(messageType, *args, **kw):
                   }), headers={'Content-Type': 'application/json'})
 
 
-def send_discord_msg(messageType, *args, **kw):
+def send_discord_msg(HOOK, messageType, *args, **kw):
     threading.Thread(target=_send_discord_msg,
-                     args=(messageType, *args), kwargs=kw).start()
+                     args=(HOOK, messageType, *args), kwargs=kw).start()
 
 
 with open('secrets.json') as f:
     SECRETS = json.load(f)
-
 DISCORD_WEBHOOK = SECRETS['discord_webhook']
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--type', '-t', help='Type', default=['log'],
@@ -55,10 +54,15 @@ parser.add_argument('--type', '-t', help='Type', default=['log'],
 parser.add_argument('--message', '-m', help='Message', required=True, nargs=1)
 parser.add_argument('--name', '-n', help='Service Name',
                     default=["Unknown Service"], nargs=1)
+parser.add_argument('--hook', help='Hook Name',
+                    required=True, nargs=1)
 
 args = parser.parse_args()
 
 msgType = args.type[0]
 msg = args.message[0]
 serviceName = args.name[0]
-send_discord_msg(msgType, msg)
+hookName = args.hook[0]
+
+HOOK = DISCORD_WEBHOOK[hookName]
+send_discord_msg(HOOK, msgType, msg)
